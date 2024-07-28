@@ -11,13 +11,6 @@ async function bootstrap() {
     app.setGlobalPrefix(globalPrefix);
   }
 
-  app.useGlobalPipes(
-    new ValidationPipe({
-      transform: true,
-      transformOptions: {excludeExtraneousValues: true, exposeUnsetFields: false},
-    })
-  );
-
   const config = new DocumentBuilder().setTitle('Test for VMedia').setDescription('Test for VMedia Server REST API').build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup(globalPrefix, app, document, {

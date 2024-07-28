@@ -3,5 +3,6 @@ export namespace ProxyEndpoint {
 
   export enum Controller {
     GroupAPI = 'proxy',
+    All = '*',
   }
 }

@@ -9,7 +9,7 @@ import {Request, Response} from 'express';
 export class ProxyController {
   constructor(private readonly proxyService: ProxyService) {}
 
-  @Get('*')
+  @Get(ProxyEndpoint.Controller.All)
   @ApiOkResponse({type: 'Ok'})
   public async getRequest(@Req() request: Request, @Res() response: Response) {
     const content = await this.proxyService.getAndModify(request.url);

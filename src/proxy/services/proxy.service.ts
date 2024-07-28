@@ -1,13 +1,14 @@
 import {Injectable} from '@nestjs/common';
 import axios from 'axios';
 import * as cheerio from 'cheerio';
+import {EFileType} from 'src/shared/enums/file-type.enum';
 
 @Injectable()
 export class ProxyService {
   constructor() {}
 
   public async getAndModify(url: string): Promise<string> {
-    const globalPrefix = process.env.API_PREFIX ? +'/' + process.env.API_PREFIX : '';
+    const globalPrefix = process.env.API_PREFIX ? '/' + process.env.API_PREFIX : '';
 
     const dataUrl = `https://${process.env.DOMAIN}${url.replace(`${globalPrefix}/proxy`, '')}`;
 
@@ -16,11 +17,17 @@ export class ProxyService {
 
     const proxyPath = `${globalPrefix}/proxy`;
 
-    this.updateElementAttributes($, 'a', 'href', proxyPath);
-    this.updateElementAttributes($, 'script', 'src', proxyPath);
-    this.updateElementAttributes($, 'iframe', 'src', proxyPath);
-    this.updateElementAttributes($, 'img', 'src', proxyPath);
-    this.updateElementAttributes($, 'link', 'href', proxyPath);
+    const elementsToUpdate = [
+      {tag: 'a', attribute: 'href'},
+      {tag: 'script', attribute: 'src'},
+      {tag: 'iframe', attribute: 'src'},
+      {tag: 'img', attribute: 'src'},
+      {tag: 'link', attribute: 'href'},
+    ];
+
+    elementsToUpdate.forEach(({tag, attribute}) => {
+      this.updateElementAttributes($, tag, attribute, proxyPath);
+    });
 
     $('body')
       .contents()
@@ -31,6 +38,10 @@ export class ProxyService {
     return $.html();
   }
 
+  private shouldProxy(attrValue: string): boolean {
+    return Object.values(EFileType).some((fileType) => attrValue.endsWith(fileType));
+  }
+
   private updateElementAttributes($: cheerio.CheerioAPI, elementTag: string, attribute: string, proxyPath: string) {
     $(elementTag).each((_, element) => {
       const attrValue = $(element).attr(attribute);
@@ -38,15 +49,7 @@ export class ProxyService {
 
       if (attrValue.startsWith('https://')) {
         return;
-      } else if (
-        attrValue.endsWith('.css') ||
-        attrValue.endsWith('.png') ||
-        attrValue.endsWith('.js') ||
-        attrValue.endsWith('.json') ||
-        attrValue.endsWith('.ico') ||
-        attrValue.endsWith('.svg') ||
-        attrValue.endsWith('.xml')
-      ) {
+      } else if (this.shouldProxy(attrValue)) {
         const startsWith = attrValue.startsWith('/') ? '' : '/';
         $(element).attr(attribute, `https://${process.env.DOMAIN}${startsWith}${attrValue}`);
       } else if (attrValue.startsWith('/')) {
