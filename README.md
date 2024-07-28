@@ -52,3 +52,29 @@ Open your browser and navigate to http://localhost:3000/proxy. You can use this 
 
 
 This will fetch and display the content of https://jekyllrb.com/news with modified six-letter words and proxy-replaced internal links.
+
+## Building and Running with Docker
+
+### Prerequisites
+- Docker
+- Docker Compose (optional, if using `docker-compose.yml`)
+
+### Building the Docker Image
+
+To build the Docker image for the project, run the following command in the root directory of the repository:
+
+    cd ./services
+    docker-compose build
+
+### Running the Docker Container
+To run the Docker container, use the following command:
+
+    docker-compose up -d
+
+
+## Known Issues:
+
+Originally chosen for the project was docs.nestjs.com. But a problem arose that some scripts or styles were loaded incorrectly, since the nestjs site is somewhat dynamic.
+Therefore, jekyllrb.com was chosen, without violating the terms of the technical specifications.
+
+In this case, the proxy works great and you can navigate the site
