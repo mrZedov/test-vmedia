@@ -1,12 +1,18 @@
 version: '3'
 services:
-  postgres:
-    image: postgres
-    container_name: postgres
+  backend:
+    build:
+      context: ../
+      dockerfile: ./Dockerfile
+      args:
+        - ENV=staging
+    image: test-vmedia
     restart: always
-    volumes:
-      - ../../data/postgres:/var/lib/postgresql/data
-    env_file:
-      - .backend.env.local
+    container_name: test-vmedia
+    hostname: test-vmedia
+    working_dir: /app
+    environment:
+      - ENV=staging
+      - NODE_ENV=staging
     ports:
-      - ${POSTGRES_PORT}:${POSTGRES_PORT}
+      - "3000:3000"
